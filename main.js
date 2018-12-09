@@ -25,9 +25,11 @@ class Canvas {
 
 
 const INITIAL_LOCUS = [16, 41, 0];
+const JUMPING_LOCUS = [12, 550, 0];
+const FALLING_LOCUS = [485, 480, 0];
 const STEP_SIZE = 126;
-const JUMP_HEIGHT = 20;
-const JUMP_SPEED = 6;
+const JUMP_HEIGHT = 25;
+const JUMP_SPEED = 8;
 
 const RUNNING_LOCI = [
 	[429, 104, 0],// right heel up
@@ -52,7 +54,7 @@ class Sonic {
 		this.x = 0;
 		this.y = 0;
 		this.width = 40;
-		this.height = 40;
+		this.height = 50;
 
 		const url = 'sonic_3_custom_sprites_by_facundogomez-dawphra.png';
 		const sprite = new Image(this.width, this.height);
@@ -96,6 +98,8 @@ class Sonic {
 			if (this.y < JUMP_HEIGHT - 1) {
 				requestAnimationFrame(_moveUp);
 			} else {
+				this.locus = FALLING_LOCUS;
+				this.draw();
 				requestAnimationFrame(_moveDown);
 			}
 		};
@@ -105,9 +109,13 @@ class Sonic {
 			this.draw();
 			if (this.y > 0) {
 				requestAnimationFrame(_moveDown);
+			} else {
+				this.locus = INITIAL_LOCUS;
+				this.draw();
 			}
 		};
 
+		this.locus = JUMPING_LOCUS;
 		_moveUp();
 	}
 
