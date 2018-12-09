@@ -9,23 +9,25 @@ class Canvas {
 	}
 
 	clear() {
-		this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);		
+		this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 	}
 
 	drawImage(image, sourceOffset, destinationOffset, scale) {
-		this.ctx.drawImage(image,
-			sourceOffset[0], sourceOffset[1], image.width, image.height,
-			destinationOffset[0], destinationOffset[1], image.width * scale, image.height * scale
+		this.ctx.drawImage(
+			image,
+			sourceOffset[0], sourceOffset[1],
+			image.width, image.height,
+			destinationOffset[0], this.canvas.height - destinationOffset[1] - image.height * scale,
+			image.width * scale, image.height * scale
 		);
 	}
 }
-const url = 'sonic_3_custom_sprites_by_facundogomez-dawphra.png';
-const sonic = new Image(40, 40);
-sonic.src = url;
 
-const canvas = new Canvas('canvas');
 
-const INITIAL_POSITION = [16, 41, 0];
+const INITIAL_LOCUS = [16, 41, 0];
+const STEP_SIZE = 126;
+const JUMP_HEIGHT = 20;
+const JUMP_SPEED = 6;
 
 const loci = [
 	[429, 104, 0],// right heel up
@@ -43,43 +45,86 @@ const loci = [
 	[308, 168, 128],// left foot down
 	[16, 41, 126]// at rest
 ];
-// let i = 0;
-let position = 0;
-const STEP_SIZE = 126;
 
-sonic.onload = () => {
-	const locus = INITIAL_POSITION;
-	// canvas.drawImage(sonic, locus, [locus[2] + position * STEP_SIZE, 0], 2);
-	draw(locus);
-}
+class Sonic {
+	constructor() {
+		this.locus = INITIAL_LOCUS;
+		this.x = 0;
+		this.y = 0;
+		this.width = 40;
+		this.height = 40;
 
-function draw(locus) {
-	canvas.clear();
-	canvas.drawImage(sonic, locus, [locus[2] + position * STEP_SIZE, 0], 2);
-}
-
-function moveRight() {
-	let frame = 1;
-
-	function _moveRight() {
-		draw(loci[frame]);
-		if (frame + 1 < loci.length) {
-			frame ++;
-			requestAnimationFrame(_moveRight);
-		} else {
-			position ++;
+		const url = 'sonic_3_custom_sprites_by_facundogomez-dawphra.png';
+		const sprite = new Image(this.width, this.height);
+		sprite.src = url;
+		sprite.onload = () => {
+			this.draw(INITIAL_LOCUS);
 		}
+		this.sprite = sprite;
 	}
 
-	_moveRight();
+	draw() {
+		canvas.clear();
+		const pixelX = this.locus[2] + this.x * STEP_SIZE;
+		const pixelY = this.y * JUMP_SPEED;
+		canvas.drawImage(this.sprite, this.locus, [pixelX, pixelY], 2);
+	}
+
+	moveRight() {
+		let frame = 1;
+
+		const _moveRight = () => {
+			this.locus = loci[frame];
+			this.draw();
+			if (frame + 1 < loci.length) {
+				frame ++;
+				requestAnimationFrame(_moveRight);
+			} else {
+				this.x ++;
+			}
+		};
+
+		_moveRight();
+	}
+
+	jump() {
+		const _moveUp = () => {
+			this.y ++;
+			this.draw();
+
+			if (this.y < JUMP_HEIGHT - 1) {
+				requestAnimationFrame(_moveUp);
+			} else {
+				requestAnimationFrame(_moveDown);
+			}
+		};
+
+		const _moveDown = () => {
+			this.y --;
+			this.draw();
+			if (this.y > 0) {
+				requestAnimationFrame(_moveDown);
+			}
+		};
+
+		_moveUp();
+	}
+
 }
+
+const canvas = new Canvas('canvas');
+const sonic = new Sonic();
+
 
 document.addEventListener('keydown', (ev) => {
 	switch (ev.keyCode) {
+		case 32:// Space
+			sonic.jump();
+			break;
 		// case 37: Reverse images for moving left.
 
 		case 39:// Right
-			moveRight();// Needs to be uninterruptible.
+			sonic.moveRight();// Needs to be uninterruptible.
 			// Should not come to rest if key still down.
 	}
 });
