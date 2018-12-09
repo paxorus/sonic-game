@@ -55,28 +55,46 @@ class Sonic {
 		this.y = 0;
 		this.width = 40;
 		this.height = 50;
+		this.scale = 2;
+		this.isFacingRight = true;
 
-		const url = 'sonic_3_custom_sprites_by_facundogomez-dawphra.png';
+		this.sprite = this.getSpriteSheet('sonic_3_custom_sprites_by_facundogomez-dawphra.png');
+		this.sprite.onload = () => {
+			this.draw(INITIAL_LOCUS);
+		};
+
+		this.reverseSprite = this.getSpriteSheet('sonic_3_custom_sprites_by_facundogomez-dawphra-flipped.png');
+	}
+
+	getSpriteSheet(url) {
 		const sprite = new Image(this.width, this.height);
 		sprite.src = url;
-		sprite.onload = () => {
-			this.draw(INITIAL_LOCUS);
-		}
-		this.sprite = sprite;
+		return sprite;
 	}
 
 	draw() {
-		canvas.clear();
-		const pixelX = this.locus[2] + this.x * STEP_SIZE;
+		let locus = this.locus;
+		if (! this.isFacingRight) {
+			locus = [
+				750 - locus[0] - this.width,// width of spritesheet
+				locus[1],
+				- locus[2] - 20 // flipping adjustment
+			];
+		}
+		const pixelX = locus[2] + this.x * STEP_SIZE;
 		const pixelY = this.y * JUMP_SPEED;
-		canvas.drawImage(this.sprite, this.locus, [pixelX, pixelY], 2);
+
+		const sprite = this.isFacingRight ? this.sprite : this.reverseSprite;
+		canvas.drawImage(sprite, locus, [pixelX, pixelY], this.scale);
 	}
 
 	moveRight() {
 		let frame = 1;
+		this.isFacingRight = true;
 
 		const _moveRight = () => {
 			this.locus = RUNNING_LOCI[frame];
+			canvas.clear();
 			this.draw();
 			if (frame + 1 < RUNNING_LOCI.length) {
 				frame ++;
@@ -90,15 +108,37 @@ class Sonic {
 		_moveRight();
 	}
 
+	moveLeft() {
+		let frame = 1;
+		this.isFacingRight = false;
+
+		const _moveLeft = () => {
+			this.locus = RUNNING_LOCI[frame];
+			canvas.clear();
+			this.draw();
+			if (frame + 1 < RUNNING_LOCI.length) {
+				frame ++;
+				requestAnimationFrame(_moveLeft);
+			} else {
+				this.locus = INITIAL_LOCUS;
+				this.x --;
+			}
+		};
+
+		_moveLeft();
+	}
+
 	jump() {
 		const _moveUp = () => {
 			this.y ++;
+			canvas.clear();
 			this.draw();
 
 			if (this.y < JUMP_HEIGHT - 1) {
 				requestAnimationFrame(_moveUp);
 			} else {
 				this.locus = FALLING_LOCUS;
+				canvas.clear();
 				this.draw();
 				requestAnimationFrame(_moveDown);
 			}
@@ -106,11 +146,13 @@ class Sonic {
 
 		const _moveDown = () => {
 			this.y --;
+			canvas.clear();
 			this.draw();
 			if (this.y > 0) {
 				requestAnimationFrame(_moveDown);
 			} else {
 				this.locus = INITIAL_LOCUS;
+				canvas.clear();
 				this.draw();
 			}
 		};
@@ -130,8 +172,9 @@ document.addEventListener('keydown', (ev) => {
 		case 32:// Space
 			sonic.jump();
 			break;
-		// case 37: Reverse images for moving left.
-
+		case 37:// Reverse images for moving left.
+			sonic.moveLeft();
+			break;
 		case 39:// Right
 			sonic.moveRight();// Needs to be uninterruptible.
 			// Should not come to rest if key still down.
