@@ -29,7 +29,7 @@ const STEP_SIZE = 126;
 const JUMP_HEIGHT = 20;
 const JUMP_SPEED = 6;
 
-const loci = [
+const RUNNING_LOCI = [
 	[429, 104, 0],// right heel up
 	[472, 104, 10],// right foot up
 	[516, 104, 11],// right foot curve
@@ -74,12 +74,13 @@ class Sonic {
 		let frame = 1;
 
 		const _moveRight = () => {
-			this.locus = loci[frame];
+			this.locus = RUNNING_LOCI[frame];
 			this.draw();
-			if (frame + 1 < loci.length) {
+			if (frame + 1 < RUNNING_LOCI.length) {
 				frame ++;
 				requestAnimationFrame(_moveRight);
 			} else {
+				this.locus = INITIAL_LOCUS;
 				this.x ++;
 			}
 		};
