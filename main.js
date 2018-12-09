@@ -17,51 +17,64 @@ class Canvas {
 	}
 }
 const url = 'sonic_3_custom_sprites_by_facundogomez-dawphra.png';
-const sonic = new Image(30, 40);
+const sonic = new Image(40, 40);
 sonic.src = url;
 
 const canvas = new Canvas('canvas');
 
 const loci = [
 	// [16, 41],// at rest
-	[429, 106],
-	[472, 105],
-	[516, 104],
-	[561, 104],
-	[612, 106],
-	[665, 106],
-	[16, 170],
-	[106, 169],
-	[148, 168],
-	[190, 168],
-	[245, 170],
-	[308, 172],
-	[350, 171]//,
-	// [398, 171]
+	[429, 104, 0],// right heel up
+	[472, 104, 5],// right foot up
+	[516, 104, 6],// right foot curve
+	[561, 104, 7],// right toe up
+	[612, 104, 11],// right toe way up
+	[665, 104, 14],// right heel down
+	[16, 168, 34],// right foot down
+	[64, 168, 43],// left foot down
+	[106, 168, 46],// left foot up
+	[148, 168, 46],// left foot curve
+	[190, 168, 65],// left toe semi-up
+	[245, 168, 69],// left heel down
+	[308, 168, 109]// left foot down
 ];
 let i = 0;
+let position = 0;
+const STEP_SIZE = 107;
 
 sonic.onload = () => {
-	canvas.drawImage(sonic, [16, 41], [0, 0], 2);
+	const locus = loci[i];
+	canvas.drawImage(sonic, locus, [locus[2] + position * STEP_SIZE, 0], 2);
 }
 
 function draw() {
 	const locus = loci[i];
 	canvas.clear();
-	canvas.drawImage(sonic, locus, [0, 0], 2);
+	canvas.drawImage(sonic, locus, [locus[2] + position * STEP_SIZE, 0], 2);
 	document.getElementById('rando').textContent = i;	
 }
 
 document.addEventListener('keydown', (ev) => {
 	switch (ev.keyCode) {
 		case 37:// Left
-			i = (i - 1 + loci.length) % loci.length;
+			if (i == 0) {
+				i = loci.length - 1;
+				position --;
+			} else {
+				i --;
+			}
+			// i = (i - 1 + loci.length) % loci.length;
 			// console.log(i);
 			draw();
 			break;
 
 		case 39:// Right
-			i = (i + 1) % loci.length;
+			if (i == loci.length - 1) {
+				i = 0;
+				position ++;
+			} else {
+				i ++;
+			}
 			draw();
 	}
 });
