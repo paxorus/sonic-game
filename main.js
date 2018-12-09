@@ -25,22 +25,22 @@ const canvas = new Canvas('canvas');
 const loci = [
 	// [16, 41],// at rest
 	[429, 104, 0],// right heel up
-	[472, 104, 5],// right foot up
-	[516, 104, 6],// right foot curve
-	[561, 104, 7],// right toe up
-	[612, 104, 11],// right toe way up
-	[665, 104, 14],// right heel down
-	[16, 168, 34],// right foot down
-	[64, 168, 43],// left foot down
-	[106, 168, 46],// left foot up
-	[148, 168, 46],// left foot curve
-	[190, 168, 65],// left toe semi-up
-	[245, 168, 69],// left heel down
-	[308, 168, 109]// left foot down
+	[472, 104, 10],// right foot up
+	[516, 104, 11],// right foot curve
+	[561, 104, 12],// right toe up
+	[612, 104, 18],// right toe way up
+	[665, 104, 21],// right heel down
+	[16, 168, 41],// right foot down
+	[64, 168, 62],// left foot down
+	[106, 168, 65],// left foot up
+	[148, 168, 65],// left foot curve
+	[190, 168, 84],// left toe semi-up
+	[245, 168, 88],// left heel down
+	[308, 168, 128]// left foot down
 ];
 let i = 0;
 let position = 0;
-const STEP_SIZE = 107;
+const STEP_SIZE = 126;
 
 sonic.onload = () => {
 	const locus = loci[i];
