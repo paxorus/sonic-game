@@ -43,7 +43,7 @@ class Sonic {
 
 		this.sprite = this.getSpriteSheet('sonic_3_custom_sprites_by_facundogomez-dawphra.png');
 		this.sprite.onload = () => {
-			this.draw(INITIAL_LOCUS);
+			this.draw();
 		};
 
 		this.reverseSprite = this.getSpriteSheet('sonic_3_custom_sprites_by_facundogomez-dawphra-flipped.png');
@@ -66,7 +66,14 @@ class Sonic {
 		}
 
 		const sprite = this.isFacingRight ? this.sprite : this.reverseSprite;
-		canvas.drawImage(sprite, locus, [this.x, this.y], this.scale);
+		this.drawing = {
+			'image': sprite,
+			'locus': locus,
+			'position': [this.x, this.y],
+			'scale': this.scale
+		};
+		// canvas.drawImage(sprite, locus, [this.x, this.y], this.scale);
+		canvas.render();
 	}
 
 	moveRight() {
@@ -78,7 +85,6 @@ class Sonic {
 			this.locus = RUNNING_LOCI[frame];
 			this.x += this.locus[2];
 
-			canvas.clear();
 			this.draw();
 
 			frame = (frame + 1) % RUNNING_LOCI.length;
@@ -97,7 +103,6 @@ class Sonic {
 			this.locus = RUNNING_LOCI[frame];
 			this.x -= this.locus[2];
 
-			canvas.clear();
 			this.draw();
 
 			frame = (frame + 1) % RUNNING_LOCI.length;
@@ -117,7 +122,6 @@ class Sonic {
 		const _moveUp = () => {
 			this.y += JUMP_SPEED;
 			this.x += vx * MIDAIR_RUNNING_SPEED;
-			canvas.clear();
 			this.draw();
 
 			if (this.y < JUMP_HEIGHT - 1) {
@@ -125,7 +129,6 @@ class Sonic {
 			} else {
 				this.locus = FALLING_LOCUS;
 				this.vy = -1;
-				canvas.clear();
 				this.draw();
 				requestAnimationFrame(_moveDown);
 			}
@@ -134,14 +137,12 @@ class Sonic {
 		const _moveDown = () => {
 			this.y -= JUMP_SPEED;
 			this.x += vx * MIDAIR_RUNNING_SPEED;
-			canvas.clear();
 			this.draw();
 			if (this.y > 0) {
 				requestAnimationFrame(_moveDown);
 			} else {
 				this.locus = INITIAL_LOCUS;
 				this.vy = 0;
-				canvas.clear();
 				this.draw();
 
 				// If the user has not paused walking or has set the opposite direction, proceed immediately.
@@ -162,7 +163,6 @@ class Sonic {
 		this.vx = 0;
 		this.locus = INITIAL_LOCUS;
 
-		canvas.clear();
 		this.draw();
 	}
 

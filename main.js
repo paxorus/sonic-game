@@ -1,6 +1,28 @@
 const canvas = new Canvas('canvas');
 const sonic = new Sonic();
 
+const cave = new Image(1000, 1000);
+cave.src = 'back_cave_0.png';
+cave.onload = () => {
+	canvas.render();
+};
+
+class Platform {
+	constructor(x, y, width, height) {
+		this.x = x;
+		this.y = y;
+		this.width = width;
+		this.height = height;
+		this.fillStyle = '#777';
+	}
+}
+
+const elements = [
+	sonic,
+	new Platform(100, 20, 300, 50),
+	new Platform(500, 150, 200, 50),
+	new Platform(800, 300, 500, 50)
+];
 
 document.addEventListener('keydown', (ev) => {
 	switch (ev.keyCode) {
