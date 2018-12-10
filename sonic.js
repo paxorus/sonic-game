@@ -2,9 +2,11 @@ const INITIAL_LOCUS = [16, 41, 0];
 const JUMPING_LOCUS = [12, 550, 0];
 const FALLING_LOCUS = [485, 480, 0];
 const FLIPPING_OFFSET = 20;// Sonic is left-aligned, not centered, in his sprite.
+
 const STEP_SIZE = 126;
 const JUMP_HEIGHT = 200;
 const JUMP_SPEED = 8;
+const MIDAIR_RUNNING_SPEED = 8;
 
 const SPRITE_SHEET_WIDTH = 750;
 const SPRITE_WIDTH = 40;
@@ -106,8 +108,15 @@ class Sonic {
 	}
 
 	jump() {
+		cancelAnimationFrame(this.walkFrame);
+		this.walkFrame = null;
+		this.vy = 1;
+		this.locus = JUMPING_LOCUS;
+		const vx = this.vx;// Save vx so that it cannot be changed midflight.
+
 		const _moveUp = () => {
 			this.y += JUMP_SPEED;
+			this.x += vx * MIDAIR_RUNNING_SPEED;
 			canvas.clear();
 			this.draw();
 
@@ -115,6 +124,7 @@ class Sonic {
 				requestAnimationFrame(_moveUp);
 			} else {
 				this.locus = FALLING_LOCUS;
+				this.vy = -1;
 				canvas.clear();
 				this.draw();
 				requestAnimationFrame(_moveDown);
@@ -123,18 +133,26 @@ class Sonic {
 
 		const _moveDown = () => {
 			this.y -= JUMP_SPEED;
+			this.x += vx * MIDAIR_RUNNING_SPEED;
 			canvas.clear();
 			this.draw();
 			if (this.y > 0) {
 				requestAnimationFrame(_moveDown);
 			} else {
 				this.locus = INITIAL_LOCUS;
+				this.vy = 0;
 				canvas.clear();
 				this.draw();
+
+				// If the user has not paused walking, proceed immediately.
+				if (this.vx === 1) {
+					this.moveRight();
+				} else if (this.vx === -1) {
+					this.moveLeft();
+				}
 			}
 		};
 
-		this.locus = JUMPING_LOCUS;
 		_moveUp();
 	}
 

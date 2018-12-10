@@ -5,18 +5,25 @@ const sonic = new Sonic();
 document.addEventListener('keydown', (ev) => {
 	switch (ev.keyCode) {
 		case 32:// Space
-			sonic.jump();
+			if (sonic.vy === 0) {
+				sonic.jump();
+			}
 			break;
 		case 37:// Left
+			if (sonic.vy !== 0) {
+				break;
+			}
 			if (sonic.vx === 0) {
 				sonic.moveLeft();
 			} else if (sonic.vx === 1) {
-				// Interrupt right.
 				sonic.pause();
 				sonic.moveLeft();
 			}
 			break;
 		case 39:// Right
+			if (sonic.vy !== 0) {
+				break;
+			}
 			if (sonic.vx === 0) {
 				sonic.moveRight();
 			} else if (sonic.vx === -1) {
