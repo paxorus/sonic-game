@@ -11,6 +11,7 @@ document.addEventListener('keydown', (ev) => {
 			break;
 		case 37:// Left
 			if (sonic.vy !== 0) {
+				sonic.vx = -1;// This takes effect upon landing.
 				break;
 			}
 			if (sonic.vx === 0) {
@@ -22,6 +23,7 @@ document.addEventListener('keydown', (ev) => {
 			break;
 		case 39:// Right
 			if (sonic.vy !== 0) {
+				sonic.vx = 1;
 				break;
 			}
 			if (sonic.vx === 0) {

@@ -110,7 +110,7 @@ class Sonic {
 	jump() {
 		cancelAnimationFrame(this.walkFrame);
 		this.walkFrame = null;
-		this.vy = 1;
+		this.vy = 1;// TODO: Add gravity-based ascent and descent.
 		this.locus = JUMPING_LOCUS;
 		const vx = this.vx;// Save vx so that it cannot be changed midflight.
 
@@ -144,7 +144,7 @@ class Sonic {
 				canvas.clear();
 				this.draw();
 
-				// If the user has not paused walking, proceed immediately.
+				// If the user has not paused walking or has set the opposite direction, proceed immediately.
 				if (this.vx === 1) {
 					this.moveRight();
 				} else if (this.vx === -1) {
