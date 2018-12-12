@@ -15,6 +15,7 @@ class Canvas {
 		const ch = this.canvas.height;
 		this.ctx.drawImage(cave, 0, 0, 2000, 2000, 0, 0, ch, ch);
 		this.ctx.drawImage(cave, 0, 0, 2000, 2000, ch, 0, ch, ch);
+		this.ctx.drawImage(cave, 0, 0, 2000, 2000, 2 * ch, 0, ch, ch);
 
 		for (let element of elements) {
 			if (element instanceof Sonic) {

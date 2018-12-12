@@ -3,9 +3,6 @@ const sonic = new Sonic();
 
 const cave = new Image(1000, 1000);
 cave.src = 'back_cave_0.png';
-cave.onload = () => {
-	canvas.render();
-};
 
 class Platform {
 	constructor(x, y, width, height) {
@@ -23,6 +20,32 @@ const elements = [
 	new Platform(500, 150, 200, 50),
 	new Platform(800, 300, 500, 50)
 ];
+
+// Physics animation loop.
+function physics() {
+	if (sonic) {
+		// sonic.y -= 10;
+		canvas.render();
+		sonic.draw();
+	}
+	requestAnimationFrame(physics);
+}
+
+// sonic.vy = -1;// Let him fall.
+// physics();
+
+const renderPromise = new Promise((resolve, reject) => {
+	cave.onload = () => {
+		resolve();
+	};
+}).then(new Promise((resolve, reject) => {
+	sonic.sprite.onload = () => {
+		resolve();
+	};
+})).then(() => {
+	physics();
+});
+
 
 document.addEventListener('keydown', (ev) => {
 	switch (ev.keyCode) {

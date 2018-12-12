@@ -31,8 +31,8 @@ const RUNNING_LOCI = [
 class Sonic {
 	constructor() {
 		this.locus = INITIAL_LOCUS;
-		this.x = 0;
-		this.y = 0;
+		this.x = 200;
+		this.y = 100;
 		this.vx = 0;
 		this.vy = 0;
 		this.width = SPRITE_WIDTH;
@@ -42,8 +42,11 @@ class Sonic {
 		this.walkFrame = 0;
 
 		this.sprite = this.getSpriteSheet('sonic_3_custom_sprites_by_facundogomez-dawphra.png');
-		this.sprite.onload = () => {
-			this.draw();
+		this.drawing = {
+			'image': this.sprite,
+			'locus': this.locus,
+			'position': [this.x, this.y],
+			'scale': this.scale
 		};
 
 		this.reverseSprite = this.getSpriteSheet('sonic_3_custom_sprites_by_facundogomez-dawphra-flipped.png');
@@ -72,7 +75,7 @@ class Sonic {
 			'position': [this.x, this.y],
 			'scale': this.scale
 		};
-		// canvas.drawImage(sprite, locus, [this.x, this.y], this.scale);
+
 		canvas.render();
 	}
 
