@@ -3,11 +3,6 @@ const JUMPING_LOCUS = [12, 550, 0];
 const FALLING_LOCUS = [485, 480, 0];
 const FLIPPING_OFFSET = 20;// Sonic is left-aligned, not centered, in his sprite.
 
-const STEP_SIZE = 126;
-const JUMP_HEIGHT = 200;
-const JUMP_SPEED = 8;
-const MIDAIR_RUNNING_SPEED = 8;
-
 const SPRITE_SHEET_WIDTH = 750;
 const SPRITE_WIDTH = 40;
 const SPRITE_HEIGHT = 50;
@@ -31,10 +26,6 @@ const RUNNING_LOCI = [
 class Sonic {
 	constructor() {
 		this.locus = INITIAL_LOCUS;
-		this.x = 200;
-		this.y = 100;
-		this.vx = 0;
-		this.vy = 0;
 		this.width = SPRITE_WIDTH;
 		this.height = SPRITE_HEIGHT;
 		this.scale = 2;
@@ -46,7 +37,6 @@ class Sonic {
 		this.drawing = {
 			'image': this.sprite,
 			'locus': this.locus,
-			// 'position': [this.x, this.y],
 			'scale': this.scale
 		};
 
@@ -61,7 +51,9 @@ class Sonic {
 
 	draw() {
 		let locus = this.locus;
+
 		if (! this.isFacingRight) {
+			// Adjust the sprite locus for the reverse sprite sheet.
 			locus = [
 				SPRITE_SHEET_WIDTH - locus[0] - this.width,
 				locus[1],
@@ -69,48 +61,48 @@ class Sonic {
 			];
 		}
 
-		const sprite = this.isFacingRight ? this.sprite : this.reverseSprite;
+		const spriteSheet = this.isFacingRight ? this.sprite : this.reverseSprite;
 		this.drawing = {
-			'image': sprite,
+			'image': spriteSheet,
 			'locus': locus,
-			// 'position': [this.x - 500, this.y],
 			'scale': this.scale
 		};
-
-		// canvas.render();
 	}
 
 	moveRight() {
-		Body.setVelocity(this.body, {x: 10, y: 0});
-		// console.log(this.body)
-		// consol
+		Body.setVelocity(this.body, {x: 10, y: this.body.velocity.y});
+		this.animateRight();
+	}
 
+	animateRight() {
 		let frame = 1;
 		this.isFacingRight = true;
-		this.vx = 1;
 
 		const _moveRight = () => {
 			this.locus = RUNNING_LOCI[frame];
-			this.x += this.locus[2];
-
+			// console.log('right');
 			this.draw();
-
 			frame = (frame + 1) % RUNNING_LOCI.length;
 			this.walkFrame = requestAnimationFrame(_moveRight);
 		};
 
-		_moveRight();
+		if (this.isOnGround()) {
+			_moveRight();
+		}
 	}
 
 	moveLeft() {
-		Body.setVelocity(this.body, {x: -10, y: 0});
+		Body.setVelocity(this.body, {x: -10, y: this.body.velocity.y});
+		this.animateLeft();
+	}
+
+	animateLeft() {
 		let frame = 1;
 		this.isFacingRight = false;
-		this.vx = -1;
 
 		const _moveLeft = () => {
+			// console.log('left');
 			this.locus = RUNNING_LOCI[frame];
-			this.x -= this.locus[2];
 
 			this.draw();
 
@@ -118,48 +110,43 @@ class Sonic {
 			this.walkFrame = requestAnimationFrame(_moveLeft);
 		};
 
-		_moveLeft();
+		if (this.isOnGround()) {
+			_moveLeft();
+		}
 	}
 
 	jump() {
-		Body.setVelocity(this.body, {x: 0, y: -10});
+		const vx = this.body.velocity.x;
+		Body.setVelocity(this.body, {x: vx, y: -10});
 		cancelAnimationFrame(this.walkFrame);
 		this.walkFrame = null;
-		this.vy = 1;// TODO: Add gravity-based ascent and descent.
 		this.locus = JUMPING_LOCUS;
-		const vx = this.vx;// Save vx so that it cannot be changed midflight.
 
 		const _moveUp = () => {
-			this.y += JUMP_SPEED;
-			this.x += vx * MIDAIR_RUNNING_SPEED;
 			this.draw();
 
-			if (this.y < JUMP_HEIGHT - 1) {
+			if (this.isJumpingUp()) {
 				requestAnimationFrame(_moveUp);
 			} else {
 				this.locus = FALLING_LOCUS;
-				this.vy = -1;
 				this.draw();
 				requestAnimationFrame(_moveDown);
 			}
 		};
 
 		const _moveDown = () => {
-			this.y -= JUMP_SPEED;
-			this.x += vx * MIDAIR_RUNNING_SPEED;
 			this.draw();
-			if (this.y > 0) {
+			if (this.isFallingDown()) {
 				requestAnimationFrame(_moveDown);
 			} else {
 				this.locus = INITIAL_LOCUS;
-				this.vy = 0;
 				this.draw();
 
-				// If the user has not paused walking or has set the opposite direction, proceed immediately.
-				if (this.vx === 1) {
-					this.moveRight();
-				} else if (this.vx === -1) {
-					this.moveLeft();
+				// If the user is in horiztonal motion while landing, begin running animation.
+				if (this.isRunningRight()) {
+					this.animateRight();
+				} else if (this.isRunningLeft()) {
+					this.animateLeft();
 				}
 			}
 		};
@@ -170,11 +157,33 @@ class Sonic {
 	pause() {
 		cancelAnimationFrame(this.walkFrame);
 		this.walkFrame = null;
-		this.vx = 0;
 		Body.setVelocity(sonic.body, {x: 0, y: sonic.body.velocity.y});
 		this.locus = INITIAL_LOCUS;
-
 		this.draw();
+	}
+
+	isOnGround() {
+		return Math.abs(this.body.velocity.y) < 0.3;
+	}
+
+	isRunning() {
+		return Math.abs(this.body.velocity.x) > 0.5;
+	}
+
+	isRunningRight() {
+		return this.body.velocity.x > 0.1;
+	}
+
+	isRunningLeft() {
+		return this.body.velocity.x < -0.1;
+	}
+
+	isJumpingUp() {
+		return this.body.velocity.y < -0.1;
+	}
+
+	isFallingDown() {
+		return this.body.velocity.y > 0.1;
 	}
 
 }

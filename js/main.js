@@ -52,10 +52,27 @@ cave.src = 'images/back_cave_0.png';
 })();
 
 Events.on(runner, 'beforeUpdate', function ({name, source, timestamp}) {
+	// Don't let Sonic tip.
 	Body.setAngle(sonic.body, 0);
 	// Why does some weird sliding still occur?
 	// Body.setAngularVelocity(sonic.body, 0);
 });
+
+
+Events.on(runner, 'afterUpdate', function ({name, source, timestamp}) {
+	if (! sonic.isRunning() && sonic.isOnGround()) {
+		sonic.pause();
+	}
+});
+
+// Events.on(engine, 'collisionActive', function ({name, pairs, source}) {
+// 	for (let pair of pairs) {
+// 		if (pair.bodyA.id === sonic.body.id || pair.bodyB.id === sonic.body.id) {
+// 			// This tells us whether Sonic collided vertically.
+// 			// console.log(pair.collision.axisBody.angle);
+// 		}
+// 	}
+// });
 
 // class Platform {
 // 	constructor(x, y, width, height) {
@@ -85,47 +102,24 @@ document.addEventListener('keydown', (ev) => {
 	switch (ev.keyCode) {
 		case 32:// Space
 			// Only jump if he's basically at rest.
-			if (Math.abs(sonic.body.velocity.y) < 1) {
+			if (sonic.isOnGround()) {
 				sonic.jump();
 			}
 			break;
 		case 37:// Left
-			if (sonic.vy !== 0) {
-				sonic.vx = -1;// This takes effect upon landing.
-				break;
-			}
-			if (sonic.vx === 0) {
-				sonic.moveLeft();
-			} else if (sonic.vx === 1) {
-				sonic.pause();
+			// if (! sonic.isOnGround()) {
+			// 	break;
+			// }
+			if (! sonic.isRunningLeft()) {
 				sonic.moveLeft();
 			}
 			break;
 		case 39:// Right
-			if (sonic.vy !== 0) {
-				sonic.vx = 1;
-				break;
-			}
-			if (sonic.vx === 0) {
-				sonic.moveRight();
-			} else if (sonic.vx === -1) {
-				sonic.pause();
+			// if (! sonic.isOnGround()) {
+			// 	break;
+			// }
+			if (! sonic.isRunningRight()) {
 				sonic.moveRight();
 			}
-	}
-});
-
-document.addEventListener('keyup', (ev) => {
-	switch (ev.keyCode) {
-		case 37:// Left
-			if (sonic.vx === -1) {
-				sonic.pause();
-			}
-			break;
-		case 39:// Right
-			if (sonic.vx === 1) {
-				sonic.pause();
-			}
-			break;
 	}
 });
