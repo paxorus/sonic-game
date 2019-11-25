@@ -23,6 +23,12 @@ const RUNNING_LOCI = [
 	[308, 168, 30]// left foot down
 ];
 
+const CROUCHING_LOCI = [
+	[13, 489, 0],
+	[50, 489, 0],
+	[91, 489, 0]
+];
+
 class Sonic {
 	constructor() {
 		this.locus = INITIAL_LOCUS;
@@ -31,6 +37,7 @@ class Sonic {
 		this.scale = 2;
 		this.isFacingRight = true;
 		this.walkFrame = 0;
+		this.crouchFrame = null;
 		this.body = Bodies.rectangle(400, 200, 80, 80);
 
 		this.sprite = this.getSpriteSheet('images/sonic_3_custom_sprites_by_facundogomez-dawphra.png');
@@ -115,6 +122,40 @@ class Sonic {
 		}
 	}
 
+	crouch() {
+		this.animateCrouch();
+	}
+
+	animateCrouch() {
+		let frame = 0;
+
+		const _crouchDown = () => {
+			this.locus = CROUCHING_LOCI[frame];
+			this.draw();
+			frame ++;
+			if (frame < CROUCHING_LOCI.length) {
+				this.crouchFrame = requestAnimationFrame(_crouchDown, 1000);
+			} else {
+				this.crouchFrame = null;
+				this.isCrouched = true;
+			}
+		}
+
+		_crouchDown();
+	}
+
+	endCrouch() {
+		// Cancel any ongoing crouch.
+		cancelAnimationFrame(this.crouchFrame);
+		this.crouchFrame = null;
+		// End any past crouch.
+		this.isCrouched = false;
+		// Return to rest.
+		this.locus = INITIAL_LOCUS;
+
+		this.draw();
+	}
+
 	jump() {
 		const vx = this.body.velocity.x;
 		Body.setVelocity(this.body, {x: vx, y: -10});
@@ -142,7 +183,7 @@ class Sonic {
 				this.locus = INITIAL_LOCUS;
 				this.draw();
 
-				// If the user is in horiztonal motion while landing, begin running animation.
+				// If the user is in horizontal motion while landing, begin running animation.
 				if (this.isRunningRight()) {
 					this.animateRight();
 				} else if (this.isRunningLeft()) {
@@ -186,4 +227,7 @@ class Sonic {
 		return this.body.velocity.y > 0.1;
 	}
 
+	isCrouching() {
+		return this.crouchFrame !== null || this.isCrouched;
+	}
 }

@@ -60,7 +60,8 @@ Events.on(runner, 'beforeUpdate', function ({name, source, timestamp}) {
 
 
 Events.on(runner, 'afterUpdate', function ({name, source, timestamp}) {
-	if (! sonic.isRunning() && sonic.isOnGround()) {
+	// Sonic should stop running once his velocity is gone.
+	if (! sonic.isRunning() && sonic.walkFrame !== null) {
 		sonic.pause();
 	}
 });
@@ -121,5 +122,18 @@ document.addEventListener('keydown', (ev) => {
 			if (! sonic.isRunningRight()) {
 				sonic.moveRight();
 			}
+			break;
+		case 40:// Down
+			if (! sonic.isRunning() && sonic.isOnGround() && ! sonic.isCrouching()) {
+				sonic.crouch();
+			}
+	}
+});
+
+document.addEventListener('keyup', (ev) => {
+	switch (ev.keyCode) {
+		case 40:// Down
+			sonic.endCrouch();
+			break;
 	}
 });
