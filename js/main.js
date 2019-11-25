@@ -1,38 +1,71 @@
+var Engine = Matter.Engine,
+    Render = Matter.Render,
+    Composite = Matter.Composite,
+    World = Matter.World,
+    Body = Matter.Body,
+    Bodies = Matter.Bodies,
+    Runner = Matter.Runner,
+    Events = Matter.Events;
+
+
 const canvas = new Canvas('canvas');
-const sonic = new Sonic();
 
-const cave = new Image(1000, 1000);
-cave.src = 'back_cave_0.png';
+// create an engine.
+const engine = Engine.create();
+const runner = Runner.create();
 
-class Platform {
-	constructor(x, y, width, height) {
-		this.x = x;
-		this.y = y;
-		this.width = width;
-		this.height = height;
-		this.fillStyle = '#777';
-	}
-}
+// Create all physical bodies.
+// Falling boxes.
+const boxA = Bodies.rectangle(400, 200, 80, 80);
+const boxB = Bodies.rectangle(450, 50, 80, 80);
 
-const elements = [
-	sonic,
-	new Platform(100, 20, 300, 50),
-	new Platform(500, 150, 200, 50),
-	new Platform(800, 300, 500, 50)
+// Platforms.
+const platforms = [
+	Bodies.rectangle(200, 650, 100, 50, { isStatic: true }),
+	Bodies.rectangle(300, 600, 100, 50, { isStatic: true }),
+	Bodies.rectangle(400, 550, 100, 50, { isStatic: true }),
+	Bodies.rectangle(550, 600, 200, 50, { isStatic: true })
 ];
 
-// Physics animation loop.
-function physics() {
-	if (sonic) {
-		// sonic.y -= 10;
-		canvas.render();
-		sonic.draw();
-	}
-	requestAnimationFrame(physics);
-}
+// Sonic's box.
+const sonic = new Sonic();
 
-// sonic.vy = -1;// Let him fall.
-// physics();
+// add all of the bodies to the world
+const bodies = [boxA, boxB, sonic.body, ...platforms];
+
+
+World.add(engine.world, bodies);
+
+const cave = new Image(1000, 1000);
+cave.src = 'images/back_cave_0.png';
+
+
+(function render() {
+    var bodies = Composite.allBodies(engine.world);
+    // var bodies = [boxA, boxB, ...platforms];
+
+    window.requestAnimationFrame(render);
+
+    canvas.renderBackground(cave);
+    canvas.renderObjects(bodies);
+    canvas.renderSonic(sonic);
+})();
+
+Events.on(runner, 'beforeUpdate', function ({name, source, timestamp}) {
+	Body.setAngle(sonic.body, 0);
+	// Why does some weird sliding still occur?
+	// Body.setAngularVelocity(sonic.body, 0);
+});
+
+// class Platform {
+// 	constructor(x, y, width, height) {
+// 		this.x = x;
+// 		this.y = y;
+// 		this.width = width;
+// 		this.height = height;
+// 		this.fillStyle = '#777';
+// 	}
+// }
 
 const renderPromise = new Promise((resolve, reject) => {
 	cave.onload = () => {
@@ -43,14 +76,16 @@ const renderPromise = new Promise((resolve, reject) => {
 		resolve();
 	};
 })).then(() => {
-	physics();
+	// Let there be physics!
+	Runner.run(runner, engine);
 });
 
 
 document.addEventListener('keydown', (ev) => {
 	switch (ev.keyCode) {
 		case 32:// Space
-			if (sonic.vy === 0) {
+			// Only jump if he's basically at rest.
+			if (Math.abs(sonic.body.velocity.y) < 1) {
 				sonic.jump();
 			}
 			break;
@@ -82,12 +117,12 @@ document.addEventListener('keydown', (ev) => {
 
 document.addEventListener('keyup', (ev) => {
 	switch (ev.keyCode) {
-		case 37:
+		case 37:// Left
 			if (sonic.vx === -1) {
 				sonic.pause();
 			}
 			break;
-		case 39:
+		case 39:// Right
 			if (sonic.vx === 1) {
 				sonic.pause();
 			}

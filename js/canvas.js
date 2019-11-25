@@ -1,31 +1,49 @@
 class Canvas {
 	constructor(elementId) {
 		const canvas = document.getElementById(elementId);
-		canvas.width = window.innerWidth;
-		canvas.height = window.innerHeight;
-
 		this.canvas = canvas;
 		this.ctx = canvas.getContext('2d');
+
+		canvas.width = document.body.clientWidth;
+		canvas.height = document.body.clientHeight;
 	}
 
-	render() {
-		this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
+	renderBackground(backgroundImage) {
 		// Hard-code the background to cover at least my screen.
 		const ch = this.canvas.height;
-		this.ctx.drawImage(cave, 0, 0, 2000, 2000, 0, 0, ch, ch);
-		this.ctx.drawImage(cave, 0, 0, 2000, 2000, ch, 0, ch, ch);
-		this.ctx.drawImage(cave, 0, 0, 2000, 2000, 2 * ch, 0, ch, ch);
+		this.ctx.drawImage(backgroundImage, 0, 0, 2000, 2000, 0, 0, ch, ch);
+		this.ctx.drawImage(backgroundImage, 0, 0, 2000, 2000, ch, 0, ch, ch);
+		this.ctx.drawImage(backgroundImage, 0, 0, 2000, 2000, 2 * ch, 0, ch, ch);
+	}
 
-		for (let element of elements) {
-			if (element instanceof Sonic) {
-				const drawing = element.drawing;
-				this.drawImage(drawing.image, drawing.locus, drawing.position, drawing.scale);
-			} else if (element instanceof Platform) {
-				this.ctx.fillStyle = element.fillStyle;
-				this.ctx.fillRect(element.x, this.canvas.height - element.y - element.height, element.width, element.height);
-			}
-		}
+	renderSonic() {
+		const drawing = sonic.drawing;
+		const position = sonic.body.position;
+		// Align Sonic's drawing with his physical box approximation.
+		const positionX = position.x - 40;
+		const positionY = position.y + 60;
+		this.drawImage(drawing.image, drawing.locus, [positionX, this.canvas.height - positionY], drawing.scale);
+	}
+
+	renderObjects(bodies) {
+	    const context = canvas.ctx;
+	    context.beginPath();
+
+	    for (let body of bodies) {
+	        var vertices = body.vertices;
+
+	        context.moveTo(vertices[0].x, vertices[0].y);
+
+	        for (var j = 1; j < vertices.length; j += 1) {
+	            context.lineTo(vertices[j].x, vertices[j].y);
+	        }
+
+	        context.lineTo(vertices[0].x, vertices[0].y);
+	    }
+
+	    context.lineWidth = 1;
+	    context.strokeStyle = '#999'; // grey
+	    context.stroke();
 	}
 
 	drawImage(image, sourceOffset, destinationOffset, scale) {

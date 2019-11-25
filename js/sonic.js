@@ -40,16 +40,17 @@ class Sonic {
 		this.scale = 2;
 		this.isFacingRight = true;
 		this.walkFrame = 0;
+		this.body = Bodies.rectangle(400, 200, 80, 80);
 
-		this.sprite = this.getSpriteSheet('sonic_3_custom_sprites_by_facundogomez-dawphra.png');
+		this.sprite = this.getSpriteSheet('images/sonic_3_custom_sprites_by_facundogomez-dawphra.png');
 		this.drawing = {
 			'image': this.sprite,
 			'locus': this.locus,
-			'position': [this.x, this.y],
+			// 'position': [this.x, this.y],
 			'scale': this.scale
 		};
 
-		this.reverseSprite = this.getSpriteSheet('sonic_3_custom_sprites_by_facundogomez-dawphra-flipped.png');
+		this.reverseSprite = this.getSpriteSheet('images/sonic_3_custom_sprites_by_facundogomez-dawphra-flipped.png');
 	}
 
 	getSpriteSheet(url) {
@@ -72,14 +73,18 @@ class Sonic {
 		this.drawing = {
 			'image': sprite,
 			'locus': locus,
-			'position': [this.x, this.y],
+			// 'position': [this.x - 500, this.y],
 			'scale': this.scale
 		};
 
-		canvas.render();
+		// canvas.render();
 	}
 
 	moveRight() {
+		Body.setVelocity(this.body, {x: 10, y: 0});
+		// console.log(this.body)
+		// consol
+
 		let frame = 1;
 		this.isFacingRight = true;
 		this.vx = 1;
@@ -98,6 +103,7 @@ class Sonic {
 	}
 
 	moveLeft() {
+		Body.setVelocity(this.body, {x: -10, y: 0});
 		let frame = 1;
 		this.isFacingRight = false;
 		this.vx = -1;
@@ -116,6 +122,7 @@ class Sonic {
 	}
 
 	jump() {
+		Body.setVelocity(this.body, {x: 0, y: -10});
 		cancelAnimationFrame(this.walkFrame);
 		this.walkFrame = null;
 		this.vy = 1;// TODO: Add gravity-based ascent and descent.
@@ -164,6 +171,7 @@ class Sonic {
 		cancelAnimationFrame(this.walkFrame);
 		this.walkFrame = null;
 		this.vx = 0;
+		Body.setVelocity(sonic.body, {x: 0, y: sonic.body.velocity.y});
 		this.locus = INITIAL_LOCUS;
 
 		this.draw();
