@@ -1,57 +1,125 @@
-const INITIAL_LOCUS = [16, 41, 0];
+const INITIAL_LOCUS = [2, 0, 0];
 const JUMPING_LOCUS = [12, 550, 0];
 const FALLING_LOCUS = [485, 480, 0];
 const FLIPPING_OFFSET = 20;// Sonic is left-aligned, not centered, in his sprite.
 
-const SPRITE_SHEET_WIDTH = 750;
 const SPRITE_WIDTH = 40;
-const SPRITE_HEIGHT = 50;
+const SPRITE_HEIGHT = 40;
+const SPRITE_SCALE = 2;
+
+const WALK_SPEED = 10;
+const JUMP_SPEED = 10;
+
+const BASE_ROLL_SPEED = 20;
+const MAX_CHARGE_FACTOR = 3;// So max speed 60 = 20 * 3.
+
+const JUMPING_LOCI = [
+	[2, 211, 0],
+	[44, 211, 0],
+	[86, 211, 0],
+	[128, 211, 0],
+	[170, 211, 0],
+	[212, 211, 0]
+];
 
 const RUNNING_LOCI = [
-	[429, 104, 0],// right heel up
-	[472, 104, 10],// right foot up
-	[516, 104, 1],// right foot curve
-	[561, 104, 1],// right toe up
-	[612, 104, 6],// right toe way up
-	[665, 104, 3],// right heel down
-	[16, 168, 20],// right foot down
-	[64, 168, 21],// left foot down
-	[106, 168, 3],// left foot up
-	[148, 168, 0],// left foot curve
-	[190, 168, 19],// left toe semi-up
-	[245, 168, 4],// left heel down
-	[308, 168, 30]// left foot down
+	[260, 104, 0]
+// 	[429, 104, 0],// right heel up
+// 	[472, 104, 10],// right foot up
+// 	[516, 104, 1],// right foot curve
+// 	[561, 104, 1],// right toe up
+// 	[612, 104, 6],// right toe way up
+// 	[665, 104, 3],// right heel down
+// 	[16, 168, 20],// right foot down
+// 	[64, 168, 21],// left foot down
+// 	[106, 168, 3],// left foot up
+// 	[148, 168, 0],// left foot curve
+// 	[190, 168, 19],// left toe semi-up
+// 	[245, 168, 4],// left heel down
+// 	[308, 168, 30]// left foot down
 ];
 
 const CROUCHING_LOCI = [
-	[13, 489, 0],
-	[50, 489, 0],
-	[91, 489, 0]
+	[2, 84, 0],
+	[44, 84, 0]
 ];
+
+const CHARACTERS = [
+	{
+		// Tikal
+		sprite: 'images/curated/tikal-curated.png',
+		reverseSprite: 'images/flipped/tikal-flipped.png',
+		spriteSheetWidth: 372,
+		scale: 2.1,// Do we still need this?
+		numJumpFrames: 6
+	},
+	{
+		// Shadow
+		sprite: 'images/curated/shadow-curated.png',
+		reverseSprite: 'images/flipped/shadow-flipped.png',
+		spriteSheetWidth: 379,
+		scale: 2,
+		numJumpFrames: 6
+	},
+	{
+		// Sonic
+		sprite: 'images/curated/sonic-curated.png',
+		reverseSprite: 'images/flipped/sonic-flipped.png',
+		spriteSheetWidth: 363,
+		scale: 2,
+		numJumpFrames: 5
+	}
+]
 
 class Sonic {
 	constructor() {
 		this.locus = INITIAL_LOCUS;
-		this.width = SPRITE_WIDTH;
-		this.height = SPRITE_HEIGHT;
-		this.scale = 2;
 		this.isFacingRight = true;
 		this.walkFrame = 0;
 		this.crouchFrame = null;
-		this.body = Bodies.rectangle(400, 200, 80, 80);
+		this.chargeFactor = 0;
+		this.characterId = 0;
+		this.body = Bodies.rectangle(400, 200, SPRITE_SCALE * SPRITE_WIDTH, SPRITE_SCALE * SPRITE_HEIGHT);
 
-		this.sprite = this.getSpriteSheet('images/sonic_3_custom_sprites_by_facundogomez-dawphra.png');
+		this.scale = SPRITE_SCALE;
+
+		// Load Tikal.
+		this.sprite = this.getSpriteSheet('images/curated/tikal-curated.png');
+		this.numJumpFrames = 6;
+		this.scale = 2.1;
 		this.drawing = {
 			'image': this.sprite,
 			'locus': this.locus,
 			'scale': this.scale
 		};
+		this.spriteSheetWidth = 372;
 
-		this.reverseSprite = this.getSpriteSheet('images/sonic_3_custom_sprites_by_facundogomez-dawphra-flipped.png');
+		this.reverseSprite = this.getSpriteSheet('images/flipped/tikal-flipped.png');
+	}
+
+	switch() {
+		this.characterId = (this.characterId + 1) % CHARACTERS.length;
+		this.loadCharacter(this.characterId);
+	}
+
+	loadCharacter(characterId) {
+		const character = CHARACTERS[characterId];
+
+		this.sprite = this.getSpriteSheet(character.sprite);
+		this.reverseSprite = this.getSpriteSheet(character.reverseSprite);
+		this.spriteSheetWidth = character.spriteSheetWidth;
+		this.scale = character.scale;
+		this.numJumpFrames = character.numJumpFrames;
+
+		this.drawing = {
+			'image': this.sprite,
+			'locus': this.locus,
+			'scale': this.scale
+		};		
 	}
 
 	getSpriteSheet(url) {
-		const sprite = new Image(this.width, this.height);
+		const sprite = new Image(SPRITE_WIDTH, SPRITE_HEIGHT);
 		sprite.src = url;
 		return sprite;
 	}
@@ -62,7 +130,7 @@ class Sonic {
 		if (! this.isFacingRight) {
 			// Adjust the sprite locus for the reverse sprite sheet.
 			locus = [
-				SPRITE_SHEET_WIDTH - locus[0] - this.width,
+				this.spriteSheetWidth - locus[0] - SPRITE_WIDTH,
 				locus[1],
 				- locus[2] - FLIPPING_OFFSET
 			];
@@ -77,7 +145,7 @@ class Sonic {
 	}
 
 	moveRight() {
-		Body.setVelocity(this.body, {x: 10, y: this.body.velocity.y});
+		Body.setVelocity(this.body, {x: WALK_SPEED, y: this.body.velocity.y});
 		this.animateRight();
 	}
 
@@ -86,8 +154,7 @@ class Sonic {
 		this.isFacingRight = true;
 
 		const _moveRight = () => {
-			this.locus = RUNNING_LOCI[frame];
-			// console.log('right');
+			this.locus = INITIAL_LOCUS;//RUNNING_LOCI[frame];
 			this.draw();
 			frame = (frame + 1) % RUNNING_LOCI.length;
 			this.walkFrame = requestAnimationFrame(_moveRight);
@@ -99,7 +166,7 @@ class Sonic {
 	}
 
 	moveLeft() {
-		Body.setVelocity(this.body, {x: -10, y: this.body.velocity.y});
+		Body.setVelocity(this.body, {x: -WALK_SPEED, y: this.body.velocity.y});
 		this.animateLeft();
 	}
 
@@ -108,8 +175,7 @@ class Sonic {
 		this.isFacingRight = false;
 
 		const _moveLeft = () => {
-			// console.log('left');
-			this.locus = RUNNING_LOCI[frame];
+			this.locus = INITIAL_LOCUS;//RUNNING_LOCI[frame];
 
 			this.draw();
 
@@ -137,7 +203,7 @@ class Sonic {
 				this.crouchFrame = requestAnimationFrame(_crouchDown, 1000);
 			} else {
 				this.crouchFrame = null;
-				this.isCrouched = true;
+				this._isCrouched = true;
 			}
 		}
 
@@ -149,26 +215,46 @@ class Sonic {
 		cancelAnimationFrame(this.crouchFrame);
 		this.crouchFrame = null;
 		// End any past crouch.
-		this.isCrouched = false;
+		this._isCrouched = false;
 		// Return to rest.
 		this.locus = INITIAL_LOCUS;
 
+		this.chargeFactor = 0;
 		this.draw();
+	}
+
+	chargeUp() {
+		this.chargeFactor = Math.min(this.chargeFactor + 1, MAX_CHARGE_FACTOR);
+	}
+
+	roll() {
+		this._isCrouched = false;
+		const vx = BASE_ROLL_SPEED * this.chargeFactor * (this.isFacingRight ? 1 : -1);
+		Body.setVelocity(this.body, {x: vx, y: this.body.velocity.y});
+		// Begin rolling animation loop.
+	}
+
+	isCharged() {
+		return this.chargeFactor > 0;
 	}
 
 	jump() {
 		const vx = this.body.velocity.x;
-		Body.setVelocity(this.body, {x: vx, y: -10});
+		Body.setVelocity(this.body, {x: vx, y: -JUMP_SPEED});
 		cancelAnimationFrame(this.walkFrame);
 		this.walkFrame = null;
-		this.locus = JUMPING_LOCUS;
+		let jumpingLocusIndex = 0;
+		this.locus = JUMPING_LOCI[0];
 
 		const _moveUp = () => {
 			this.draw();
 
 			if (this.isJumpingUp()) {
+				jumpingLocusIndex = (jumpingLocusIndex + 1) % this.numJumpFrames;
+				this.locus = JUMPING_LOCI[jumpingLocusIndex];
 				requestAnimationFrame(_moveUp);
 			} else {
+				// Begin falling.
 				this.locus = FALLING_LOCUS;
 				this.draw();
 				requestAnimationFrame(_moveDown);
@@ -178,8 +264,11 @@ class Sonic {
 		const _moveDown = () => {
 			this.draw();
 			if (this.isFallingDown()) {
+				jumpingLocusIndex = (jumpingLocusIndex + 1) % this.numJumpFrames;
+				this.locus = JUMPING_LOCI[jumpingLocusIndex];
 				requestAnimationFrame(_moveDown);
 			} else {
+				// End falling.
 				this.locus = INITIAL_LOCUS;
 				this.draw();
 
@@ -228,6 +317,10 @@ class Sonic {
 	}
 
 	isCrouching() {
-		return this.crouchFrame !== null || this.isCrouched;
+		return this.crouchFrame !== null;
+	}
+
+	isCrouched() {
+		return this._isCrouched;
 	}
 }

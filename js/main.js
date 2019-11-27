@@ -24,7 +24,11 @@ const platforms = [
 	Bodies.rectangle(200, 650, 100, 50, { isStatic: true }),
 	Bodies.rectangle(300, 600, 100, 50, { isStatic: true }),
 	Bodies.rectangle(400, 550, 100, 50, { isStatic: true }),
-	Bodies.rectangle(550, 600, 200, 50, { isStatic: true })
+	Bodies.rectangle(550, 600, 200, 50, { isStatic: true }),
+	Bodies.rectangle(650, 550, 200, 50, { isStatic: true }),
+	Bodies.rectangle(750, 500, 200, 50, { isStatic: true }),
+	Bodies.rectangle(850, 450, 200, 50, { isStatic: true }),
+	Bodies.rectangle(950, 400, 200, 50, { isStatic: true }),
 ];
 
 // Sonic's box.
@@ -41,20 +45,23 @@ cave.src = 'images/back_cave_0.png';
 
 
 (function render() {
-    var bodies = Composite.allBodies(engine.world);
-    // var bodies = [boxA, boxB, ...platforms];
+    // var bodies = Composite.allBodies(engine.world);
+    var bodies = [boxA, boxB, ...platforms];
 
     window.requestAnimationFrame(render);
 
     canvas.renderBackground(cave);
     canvas.renderObjects(bodies);
     canvas.renderSonic(sonic);
+
+    // Moving platforms.
+    // canvas.
 })();
 
 Events.on(runner, 'beforeUpdate', function ({name, source, timestamp}) {
 	// Don't let Sonic tip.
 	Body.setAngle(sonic.body, 0);
-	// Why does some weird sliding still occur?
+	// Why does some weird sliding still occur? Perhaps I need to increase the friction.
 	// Body.setAngularVelocity(sonic.body, 0);
 });
 
@@ -100,40 +107,48 @@ const renderPromise = new Promise((resolve, reject) => {
 
 
 document.addEventListener('keydown', (ev) => {
+	// console.log(ev.keyCode);
 	switch (ev.keyCode) {
+		case 13:// Enter
+			sonic.switch();
+			break;
 		case 32:// Space
 			// Only jump if he's basically at rest.
 			if (sonic.isOnGround()) {
-				sonic.jump();
+				if (sonic.isCrouched()) {
+					console.log('charge up');
+					sonic.chargeUp();
+				} else {
+					sonic.jump();					
+				}
 			}
 			break;
 		case 37:// Left
-			// if (! sonic.isOnGround()) {
-			// 	break;
-			// }
 			if (! sonic.isRunningLeft()) {
 				sonic.moveLeft();
 			}
 			break;
 		case 39:// Right
-			// if (! sonic.isOnGround()) {
-			// 	break;
-			// }
 			if (! sonic.isRunningRight()) {
 				sonic.moveRight();
 			}
 			break;
 		case 40:// Down
-			if (! sonic.isRunning() && sonic.isOnGround() && ! sonic.isCrouching()) {
+			if (! sonic.isRunning() && sonic.isOnGround() && ! sonic.isCrouching() && ! sonic.isCrouched()) {
 				sonic.crouch();
 			}
+			break;
 	}
 });
 
 document.addEventListener('keyup', (ev) => {
 	switch (ev.keyCode) {
 		case 40:// Down
-			sonic.endCrouch();
+			if (sonic.isCharged()) {
+				sonic.roll();
+			} else {
+				sonic.endCrouch();
+			}
 			break;
 	}
 });
