@@ -20,8 +20,8 @@ class Canvas {
 		const drawing = sonic.drawing;
 		const position = sonic.body.position;
 		// Align Sonic's drawing with his physical box approximation.
-		const positionX = position.x - 40;
-		const positionY = position.y + 40;
+		const positionX = Math.round(position.x - 20 * SPRITE_SCALE);
+		const positionY = Math.round(position.y + 20 * SPRITE_SCALE);
 		this.drawImage(drawing.image, drawing.locus, [positionX, this.canvas.height - positionY], drawing.scale);
 	}
 
@@ -47,11 +47,12 @@ class Canvas {
 	}
 
 	drawImage(image, sourceOffset, destinationOffset, scale) {
-		//Do the +/-2 to remove that weird purple border.
+		// Disable imageSmoothingEnabled to remove that weird purple border.
+		this.ctx.imageSmoothingEnabled = false;
 		this.ctx.drawImage(
 			image,
-			sourceOffset[0] + 2, sourceOffset[1] + 2,
-			image.width - 2, image.height - 2,
+			sourceOffset[0], sourceOffset[1],
+			image.width, image.height,
 			destinationOffset[0], this.canvas.height - destinationOffset[1] - image.height * scale,
 			image.width * scale, image.height * scale
 		);

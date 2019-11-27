@@ -66,17 +66,18 @@ Events.on(runner, 'beforeUpdate', function ({name, source, timestamp}) {
 });
 
 
-Events.on(runner, 'afterUpdate', function ({name, source, timestamp}) {
-	// Sonic should stop running once his velocity is gone.
-	if (! sonic.isRunning() && sonic.walkFrame !== null) {
-		sonic.pause();
-	}
-});
+// Events.on(runner, 'afterUpdate', function ({name, source, timestamp}) {
+// 	// Sonic should stop running once his velocity is gone.
+// 	// if (! sonic.isRunning() && sonic.walkFrame !== null) {
+// 	// 	sonic.pause();
+// 	// }
+// });
 
+// Sonic should stop rolling if he encounters an object horizontally.
 // Events.on(engine, 'collisionActive', function ({name, pairs, source}) {
 // 	for (let pair of pairs) {
 // 		if (pair.bodyA.id === sonic.body.id || pair.bodyB.id === sonic.body.id) {
-// 			// This tells us whether Sonic collided vertically.
+// 			// This tells us whether Sonic collided vertically, a better way to tell whether he's on the ground.
 // 			// console.log(pair.collision.axisBody.angle);
 // 		}
 // 	}
@@ -107,7 +108,6 @@ const renderPromise = new Promise((resolve, reject) => {
 
 
 document.addEventListener('keydown', (ev) => {
-	// console.log(ev.keyCode);
 	switch (ev.keyCode) {
 		case 13:// Enter
 			sonic.switch();
@@ -116,7 +116,6 @@ document.addEventListener('keydown', (ev) => {
 			// Only jump if he's basically at rest.
 			if (sonic.isOnGround()) {
 				if (sonic.isCrouched()) {
-					console.log('charge up');
 					sonic.chargeUp();
 				} else {
 					sonic.jump();					
@@ -143,6 +142,10 @@ document.addEventListener('keydown', (ev) => {
 
 document.addEventListener('keyup', (ev) => {
 	switch (ev.keyCode) {
+		case 37:// Left
+		case 39:// Right
+			sonic.endWalking();
+			break;
 		case 40:// Down
 			if (sonic.isCharged()) {
 				sonic.roll();
