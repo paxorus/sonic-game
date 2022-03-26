@@ -46,7 +46,7 @@ cave.src = 'images/back_cave_0.png';
 
 (function render() {
     // var bodies = Composite.allBodies(engine.world);
-    var bodies = [boxA, boxB, ...platforms];
+    var bodies = [boxA, boxB, ...platforms, sonic.body];
 
     window.requestAnimationFrame(render);
 
@@ -60,9 +60,9 @@ cave.src = 'images/back_cave_0.png';
 
 Events.on(runner, 'beforeUpdate', function ({name, source, timestamp}) {
 	// Don't let Sonic tip.
-	Body.setAngle(sonic.body, 0);
+	// Body.setAngle(sonic.body, 0);
 	// Why does some weird sliding still occur? Perhaps I need to increase the friction.
-	// Body.setAngularVelocity(sonic.body, 0);
+	Body.setAngularVelocity(sonic.body, 0);
 });
 
 
