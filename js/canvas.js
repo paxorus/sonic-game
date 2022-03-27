@@ -6,6 +6,23 @@ class Canvas {
 
 		canvas.width = document.body.clientWidth;
 		canvas.height = document.body.clientHeight;
+
+		this.viewportOrigin = {x: 0, y: 0};
+	}
+
+	_mapX(x) {
+		return x - this.viewportOrigin.x;
+	}
+
+	_mapY(y) {
+		return y - this.viewportOrigin.y;
+	}
+
+	centerOnSonic() {
+		canvas.viewportOrigin = {
+			x: sonic.body.position.x - document.body.clientWidth / 2,
+			y: sonic.body.position.y - document.body.clientHeight / 2
+		};
 	}
 
 	renderBackground(backgroundImage) {
@@ -32,13 +49,13 @@ class Canvas {
 	    for (let body of bodies) {
 	        var vertices = body.vertices;
 
-	        context.moveTo(vertices[0].x, vertices[0].y);
+	        context.moveTo(this._mapX(vertices[0].x), this._mapY(vertices[0].y));
 
 	        for (var j = 1; j < vertices.length; j += 1) {
-	            context.lineTo(vertices[j].x, vertices[j].y);
+	            context.lineTo(this._mapX(vertices[j].x), this._mapY(vertices[j].y));
 	        }
 
-	        context.lineTo(vertices[0].x, vertices[0].y);
+	        context.lineTo(this._mapX(vertices[0].x), this._mapY(vertices[0].y));
 	    }
 
 	    context.lineWidth = 1;
@@ -53,7 +70,7 @@ class Canvas {
 			image,
 			sourceOffset[0], sourceOffset[1],
 			image.width, image.height,
-			destinationOffset[0], this.canvas.height - destinationOffset[1] - image.height * scale,
+			this._mapX(destinationOffset[0]), this._mapY(this.canvas.height - destinationOffset[1] - image.height * scale),
 			image.width * scale, image.height * scale
 		);
 	}

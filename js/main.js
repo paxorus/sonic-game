@@ -68,6 +68,8 @@ Events.on(runner, 'beforeUpdate', function ({name, source, timestamp}) {
 	if (Math.abs(x) < 0.1) {
 		Body.setVelocity(sonic.body, {x: 0, y});
 	}
+
+	canvas.centerOnSonic();
 });
 
 
