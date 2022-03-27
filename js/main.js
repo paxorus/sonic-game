@@ -128,12 +128,12 @@ document.addEventListener('keydown', (ev) => {
 			}
 			break;
 		case 37:// Left
-			if (! sonic.isRunningLeft()) {
+			if (! sonic.isRunningLeft() && sonic.isOnGround()) {
 				sonic.moveLeft();
 			}
 			break;
 		case 39:// Right
-			if (! sonic.isRunningRight()) {
+			if (! sonic.isRunningRight() && sonic.isOnGround()) {
 				sonic.moveRight();
 			}
 			break;
@@ -148,8 +148,14 @@ document.addEventListener('keydown', (ev) => {
 document.addEventListener('keyup', (ev) => {
 	switch (ev.keyCode) {
 		case 37:// Left
+			if (sonic.isRunningLeft()) {
+				sonic.endWalking();
+			}
+			break;
 		case 39:// Right
-			sonic.endWalking();
+			if (sonic.isRunningRight()) {
+				sonic.endWalking();
+			}
 			break;
 		case 40:// Down
 			if (sonic.isCharged()) {

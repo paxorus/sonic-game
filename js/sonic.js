@@ -147,6 +147,7 @@ class Sonic {
 	animateRight() {
 		clearTimeout(this.rollFrame);
 		clearTimeout(this.walkFrame);
+		this.walkFrame = null;
 		let frame = 1;
 		this.isFacingRight = true;
 
@@ -170,6 +171,7 @@ class Sonic {
 	animateLeft() {
 		clearTimeout(this.rollFrame);
 		clearTimeout(this.walkFrame);
+		this.walkFrame = null;
 		let frame = 1;
 		this.isFacingRight = false;
 
@@ -189,13 +191,10 @@ class Sonic {
 	endWalking() {
 		Body.setVelocity(this.body, {x: 0, y: this.body.velocity.y});
 		
-		if (this.walkFrame !== null) {
-			clearTimeout(this.walkFrame);
-			this.walkFrame = null;
-
-			this.locus = INITIAL_LOCUS;
-			this.draw();
-		}
+		clearTimeout(this.walkFrame);
+		this.walkFrame = null;
+		this.locus = INITIAL_LOCUS;
+		this.draw();
 	}
 
 	crouch() {
