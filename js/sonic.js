@@ -9,7 +9,7 @@ const SPRITE_SCALE = 2;
 const WALK_SPEED = 10;
 const JUMP_SPEED = 10;
 
-const BASE_ROLL_SPEED = 20;
+const BASE_ROLL_SPEED = 1;
 const MAX_CHARGE_FACTOR = 3;// So max speed 60 = 20 * 3.
 
 const JUMPING_ANIMATION_INTERVAL = 25;// milliseconds
@@ -255,7 +255,15 @@ class Sonic {
 	roll() {
 		this._isCrouched = false;
 		const vx = BASE_ROLL_SPEED * this.chargeFactor * (this.isFacingRight ? 1 : -1);
-		Body.setVelocity(this.body, {x: vx, y: this.body.velocity.y});
+		Body.applyForce(this.body, this.body.position, {x: vx, y: 0});
+	}
+
+	endRoll() {
+		clearTimeout(this.rollFrame);
+		this.rollFrame = null;
+
+		this.locus = INITIAL_LOCUS;
+		this.draw();
 	}
 
 	isCharged() {

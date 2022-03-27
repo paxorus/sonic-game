@@ -79,14 +79,17 @@ Events.on(runner, 'beforeUpdate', function ({name, source, timestamp}) {
 // });
 
 // Sonic should stop rolling if he encounters an object horizontally.
-// Events.on(engine, 'collisionActive', function ({name, pairs, source}) {
-// 	for (let pair of pairs) {
-// 		if (pair.bodyA.id === sonic.body.id || pair.bodyB.id === sonic.body.id) {
-// 			// This tells us whether Sonic collided vertically, a better way to tell whether he's on the ground.
-// 			// console.log(pair.collision.axisBody.angle);
-// 		}
-// 	}
-// });
+Events.on(engine, 'collisionActive', function ({name, pairs, source}) {
+	for (let pair of pairs) {
+		if (pair.bodyA.id === sonic.body.id || pair.bodyB.id === sonic.body.id) {
+			// This tells us whether Sonic collided vertically, a better way to tell whether he's on the ground.
+			const normal = pair.collision.normal;
+			if (normal.x == 1 && normal.y == 0) {
+				sonic.endRoll();
+			}
+		}
+	}
+});
 
 // class Platform {
 // 	constructor(x, y, width, height) {
