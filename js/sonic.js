@@ -93,7 +93,7 @@ class Sonic {
 		this.loadCharacter(this.characterId);
 	}
 
-	switch() {
+	switchCharacter() {
 		this.characterId = (this.characterId + 1) % CHARACTERS.length;
 		this.loadCharacter(this.characterId);
 	}
@@ -107,11 +107,7 @@ class Sonic {
 		this.scale = character.scale;
 		this.numJumpFrames = character.numJumpFrames;
 
-		this.drawing = {
-			'image': this.sprite,
-			'locus': this.locus,
-			'scale': this.scale
-		};		
+		this.draw();
 	}
 
 	getSpriteSheet(url) {

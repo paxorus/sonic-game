@@ -120,7 +120,7 @@ const renderPromise = new Promise((resolve, reject) => {
 document.addEventListener('keydown', (ev) => {
 	switch (ev.keyCode) {
 		case 13:// Enter
-			sonic.switch();
+			sonic.switchCharacter();
 			break;
 		case 32:// Space
 			// Only jump if he's basically at rest.
