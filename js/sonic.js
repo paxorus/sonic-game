@@ -32,7 +32,7 @@ const ROLLING_LOCI = [
 	[213, 253, 0],
 ];
 
-const RUNNING_ANIMATION_INTERVAL = 100;// milliseconds
+const RUNNING_ANIMATION_INTERVAL = 50;// milliseconds
 const RUNNING_LOCI = [
 	[3, 43, 0],
 	[45, 43, 0],
@@ -141,16 +141,17 @@ class Sonic {
 	}
 
 	moveRight() {
-		Body.setVelocity(this.body, {x: WALK_SPEED, y: this.body.velocity.y});
 		this.animateRight();
 	}
 
 	animateRight() {
 		clearTimeout(this.rollFrame);
+		clearTimeout(this.walkFrame);
 		let frame = 1;
 		this.isFacingRight = true;
 
 		const _moveRight = () => {
+			Body.setVelocity(this.body, {x: WALK_SPEED, y: this.body.velocity.y});
 			this.locus = RUNNING_LOCI[frame];
 			this.draw();
 			frame = (frame + 1) % RUNNING_LOCI.length;
@@ -163,16 +164,17 @@ class Sonic {
 	}
 
 	moveLeft() {
-		Body.setVelocity(this.body, {x: -WALK_SPEED, y: this.body.velocity.y});
 		this.animateLeft();
 	}
 
 	animateLeft() {
 		clearTimeout(this.rollFrame);
+		clearTimeout(this.walkFrame);
 		let frame = 1;
 		this.isFacingRight = false;
 
 		const _moveLeft = () => {
+			Body.setVelocity(this.body, {x: -WALK_SPEED, y: this.body.velocity.y});
 			this.locus = RUNNING_LOCI[frame];
 			this.draw();
 			frame = (frame + 1) % RUNNING_LOCI.length;

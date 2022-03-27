@@ -21,14 +21,15 @@ const boxB = Bodies.rectangle(450, 50, 80, 80);
 
 // Platforms.
 const platforms = [
-	Bodies.rectangle(200, 650, 100, 50, { isStatic: true }),
-	Bodies.rectangle(300, 600, 100, 50, { isStatic: true }),
-	Bodies.rectangle(400, 550, 100, 50, { isStatic: true }),
-	Bodies.rectangle(550, 600, 200, 50, { isStatic: true }),
-	Bodies.rectangle(650, 550, 200, 50, { isStatic: true }),
-	Bodies.rectangle(750, 500, 200, 50, { isStatic: true }),
-	Bodies.rectangle(850, 450, 200, 50, { isStatic: true }),
-	Bodies.rectangle(950, 400, 200, 50, { isStatic: true }),
+	// Bodies.rectangle(200, 650, 100, 50, { isStatic: true }),
+	// Bodies.rectangle(300, 600, 100, 50, { isStatic: true }),
+	// Bodies.rectangle(400, 550, 100, 50, { isStatic: true }),
+	// Bodies.rectangle(550, 600, 200, 50, { isStatic: true }),
+	// Bodies.rectangle(650, 550, 200, 50, { isStatic: true }),
+	// Bodies.rectangle(750, 500, 200, 50, { isStatic: true }),
+	// Bodies.rectangle(850, 450, 200, 50, { isStatic: true }),
+	// Bodies.rectangle(950, 400, 200, 50, { isStatic: true }),
+	Bodies.rectangle(550, 600, 900, 50, { isStatic: true }),
 ];
 
 // Sonic's box.
@@ -60,9 +61,13 @@ cave.src = 'images/back_cave_0.png';
 
 Events.on(runner, 'beforeUpdate', function ({name, source, timestamp}) {
 	// Don't let Sonic tip.
-	// Body.setAngle(sonic.body, 0);
-	// Why does some weird sliding still occur? Perhaps I need to increase the friction.
 	Body.setAngularVelocity(sonic.body, 0);
+
+	// Works better than friction.
+	const {x, y} = sonic.body.velocity;
+	if (Math.abs(x) < 0.1) {
+		Body.setVelocity(sonic.body, {x: 0, y});
+	}
 });
 
 
