@@ -43,24 +43,27 @@ class Canvas {
 	}
 
 	renderObjects(bodies) {
-	    const context = canvas.ctx;
-	    context.beginPath();
+		const context = canvas.ctx;
+		context.beginPath();
 
-	    for (let body of bodies) {
-	        var vertices = body.vertices;
+		for (let body of bodies) {
+			for (let bodyPart of body.parts) {
 
-	        context.moveTo(this._mapX(vertices[0].x), this._mapY(vertices[0].y));
+				var vertices = bodyPart.vertices;
 
-	        for (var j = 1; j < vertices.length; j += 1) {
-	            context.lineTo(this._mapX(vertices[j].x), this._mapY(vertices[j].y));
-	        }
+				context.moveTo(this._mapX(vertices[0].x), this._mapY(vertices[0].y));
 
-	        context.lineTo(this._mapX(vertices[0].x), this._mapY(vertices[0].y));
-	    }
+				for (var j = 1; j < vertices.length; j += 1) {
+					context.lineTo(this._mapX(vertices[j].x), this._mapY(vertices[j].y));
+				}
 
-	    context.lineWidth = 1;
-	    context.strokeStyle = '#999'; // grey
-	    context.stroke();
+				context.lineTo(this._mapX(vertices[0].x), this._mapY(vertices[0].y));
+			}
+		}
+
+		context.lineWidth = 1;
+		context.strokeStyle = '#999'; // grey
+		context.stroke();
 	}
 
 	drawImage(image, sourceOffset, destinationOffset, scale) {

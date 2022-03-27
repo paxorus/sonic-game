@@ -1,12 +1,16 @@
 var Engine = Matter.Engine,
     Render = Matter.Render,
+    Common = Matter.Common,
     Composite = Matter.Composite,
     World = Matter.World,
     Body = Matter.Body,
     Bodies = Matter.Bodies,
     Runner = Matter.Runner,
-    Events = Matter.Events;
+    Events = Matter.Events,
+    Vertices = Matter.Vertices,
+    Composites = Matter.Composites;
 
+Common.setDecomp(decomp);
 
 const canvas = new Canvas('canvas');
 
@@ -16,8 +20,8 @@ const runner = Runner.create();
 
 // Create all physical bodies.
 // Falling boxes.
-const boxA = Bodies.rectangle(400, 200, 80, 80);
-const boxB = Bodies.rectangle(450, 50, 80, 80);
+const boxA = Bodies.rectangle(200, 200, 80, 80);
+const boxB = Bodies.rectangle(250, 50, 80, 80);
 
 // Platforms.
 const platforms = [
@@ -29,7 +33,10 @@ const platforms = [
 	// Bodies.rectangle(750, 500, 200, 50, { isStatic: true }),
 	// Bodies.rectangle(850, 450, 200, 50, { isStatic: true }),
 	// Bodies.rectangle(950, 400, 200, 50, { isStatic: true }),
-	Bodies.rectangle(550, 600, 900, 50, { isStatic: true }),
+	Bodies.rectangle(200, 600, 750, 50, { isStatic: true }),
+	ramp(950, 450, 500),
+	Bodies.rectangle(1250, 100, 300, 50, { isStatic: true }),
+	ramp(1400, 200, 300)
 ];
 
 // Sonic's box.
@@ -40,23 +47,18 @@ const bodies = [boxA, boxB, sonic.body, ...platforms];
 
 
 World.add(engine.world, bodies);
+// Composite.add(engine.world, [ramp()]);
 
 const cave = new Image(1000, 1000);
 cave.src = 'images/back_cave_0.png';
 
 
 (function render() {
-    // var bodies = Composite.allBodies(engine.world);
-    var bodies = [boxA, boxB, ...platforms, sonic.body];
-
     window.requestAnimationFrame(render);
 
     canvas.renderBackground(cave);
     canvas.renderObjects(bodies);
     canvas.renderSonic(sonic);
-
-    // Moving platforms.
-    // canvas.
 })();
 
 Events.on(runner, 'beforeUpdate', function ({name, source, timestamp}) {
@@ -102,6 +104,20 @@ Events.on(engine, 'collisionActive', function ({name, pairs, source}) {
 // 		this.fillStyle = '#777';
 // 	}
 // }
+
+function ramp(x, y, radius) {
+
+	let middle = [];
+	const NUM_POINTS = 10;
+	for (let boop = 0; boop <= NUM_POINTS; boop ++) {
+		const theta = Math.PI / 2 * (1 - boop / NUM_POINTS);
+		middle.push({x: Math.round(Math.cos(theta) * radius), y: Math.round(Math.sin(theta) * radius)});
+	}
+
+	const thing = `${middle.map(({x, y}) => `${x} ${y}`).join(" ")} ${radius} ${radius}`;
+
+	return Bodies.fromVertices(x, y, Vertices.fromPath(thing), { isStatic: true });
+}
 
 const renderPromise = new Promise((resolve, reject) => {
 	cave.onload = () => {
