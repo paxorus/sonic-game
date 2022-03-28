@@ -11,7 +11,7 @@ const WALK_SPEED = 10;
 const JUMP_SPEED = 10;
 
 const BASE_ROLL_SPEED = 1;
-const MAX_CHARGE_FACTOR = 3;
+const MAX_CHARGE_FACTOR = 1.5;
 
 const JUMPING_ANIMATION_INTERVAL = 25;// milliseconds
 const JUMPING_LOCI = [
@@ -233,13 +233,17 @@ class Sonic {
 	}
 
 	chargeUp() {
-		this.chargeFactor = Math.min(this.chargeFactor + 1, MAX_CHARGE_FACTOR);
+		if (this.chargeFactor === 0) {
+			this.chargeFactor = 1;
+		} else if (this.chargeFactor < MAX_CHARGE_FACTOR) {
+			this.chargeFactor += 0.25;
+		}
 
 		// Begin rolling animation loop.
 		let frame = 0;
 
 		const _roll = () => {
-			if (!this._isCrouched && Math.abs(this.body.velocity.x) < 0.1) {
+			if (!this._isCrouched && Math.abs(this.body.velocity.x) < 0.1 && Math.abs(this.body.velocity.y) < 0.1) {
 				this.locus = INITIAL_LOCUS;
 				this.draw();
 				return;
