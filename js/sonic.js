@@ -1,7 +1,6 @@
 const Query = Matter.Query;
 
 const INITIAL_LOCUS = [3, 1, 0];
-// const FALLING_LOCUS = [485, 480, 0];
 const FLIPPING_OFFSET = 20;// Sonic is left-aligned, not centered, in his sprite.
 
 const SPRITE_WIDTH = 40;
@@ -12,7 +11,7 @@ const WALK_SPEED = 10;
 const JUMP_SPEED = 10;
 
 const BASE_ROLL_SPEED = 1;
-const MAX_CHARGE_FACTOR = 3;// So max speed 60 = 20 * 3.
+const MAX_CHARGE_FACTOR = 3;
 
 const JUMPING_ANIMATION_INTERVAL = 25;// milliseconds
 const JUMPING_LOCI = [
@@ -240,9 +239,20 @@ class Sonic {
 		let frame = 0;
 
 		const _roll = () => {
-			this.locus = ROLLING_LOCI[frame];
+			console.log(this.body.velocity.x);
+			if (!this._isCrouched && Math.abs(this.body.velocity.x) < 0.1) {
+				this.locus = INITIAL_LOCUS;
+				this.draw();
+				return;
+			} else if (Math.abs(this.body.velocity.x) < 0.3) {
+				this.locus = JUMPING_LOCI[frame];
+				frame = (frame + 1) % JUMPING_LOCI.length;
+			} else {
+				this.locus = ROLLING_LOCI[frame];
+				frame = (frame + 1) % ROLLING_LOCI.length;
+			}
 			this.draw();
-			frame = (frame + 1) % ROLLING_LOCI.length;
+
 			// Is this already cancellable via a jump?
 			this.rollFrame = setTimeout(_roll, ROLLING_ANIMATION_INTERVAL);
 		};
@@ -312,14 +322,6 @@ class Sonic {
 		};
 
 		_moveUp();
-	}
-
-	pause() {
-		clearTimeout(this.walkFrame);
-		this.walkFrame = null;
-		Body.setVelocity(sonic.body, {x: 0, y: sonic.body.velocity.y});
-		this.locus = INITIAL_LOCUS;
-		this.draw();
 	}
 
 	isOnGround() {
