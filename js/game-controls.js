@@ -1,4 +1,12 @@
+const musicAudio = document.getElementById("music");
+let autoStartedOnce = false;
+
 document.addEventListener('keydown', (ev) => {
+	if (!autoStartedOnce) {
+		musicAudio.play();
+		autoStartedOnce = true;
+	}
+
 	switch (ev.keyCode) {
 		case 13:// Enter
 			sonic.switchCharacter();
@@ -26,6 +34,13 @@ document.addEventListener('keydown', (ev) => {
 		case 40:// Down
 			if (! sonic.isRunning() && sonic.isOnGround() && ! sonic.isCrouching() && ! sonic.isCrouched()) {
 				sonic.crouch();
+			}
+			break;
+		case 77:// M
+			if (musicAudio.paused) {
+				musicAudio.play();
+			} else {
+				musicAudio.pause();
 			}
 			break;
 	}
