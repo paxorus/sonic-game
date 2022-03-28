@@ -40,6 +40,10 @@ document.addEventListener('keydown', (ev) => {
 				sonic.crouch();
 			}
 			break;
+		case 72:// H
+			document.getElementById('help-modal').style.display = document.getElementById('help-modal').style.display === "block" ? "none" : "block";
+			break;
+
 		case 77:// M
 			if (musicAudio.paused) {
 				musicAudio.play();
