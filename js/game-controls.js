@@ -9,7 +9,7 @@ document.addEventListener('keydown', (ev) => {
 				if (sonic.isCrouched()) {
 					sonic.chargeUp();
 				} else {
-					sonic.jump();					
+					sonic.jump();
 				}
 			}
 			break;
@@ -44,9 +44,9 @@ document.addEventListener('keyup', (ev) => {
 			}
 			break;
 		case 40:// Down
-			if (sonic.isCharged()) {
+			if (sonic.isCharged() && sonic.isCrouched()) {
 				sonic.roll();
-			} else {
+			} else if (sonic.isCrouched()) {
 				sonic.endCrouch();
 			}
 			break;

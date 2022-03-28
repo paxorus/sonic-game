@@ -239,12 +239,11 @@ class Sonic {
 		let frame = 0;
 
 		const _roll = () => {
-			console.log(this.body.velocity.x);
 			if (!this._isCrouched && Math.abs(this.body.velocity.x) < 0.1) {
 				this.locus = INITIAL_LOCUS;
 				this.draw();
 				return;
-			} else if (Math.abs(this.body.velocity.x) < 0.3) {
+			} else if (!this._isCrouched && Math.abs(this.body.velocity.x) < 0.3) {
 				this.locus = JUMPING_LOCI[frame];
 				frame = (frame + 1) % JUMPING_LOCI.length;
 			} else {
@@ -264,6 +263,9 @@ class Sonic {
 		this._isCrouched = false;
 		const vx = BASE_ROLL_SPEED * this.chargeFactor * (this.isFacingRight ? 1 : -1);
 		Body.applyForce(this.body, this.body.position, {x: vx, y: 0});
+
+		// Set velocity to avoid immediately ending the roll animation loop before the force kicks in.
+		Body.setVelocity(this.body, {x: 0.1, y: 0});
 	}
 
 	endRoll() {
