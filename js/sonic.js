@@ -1,3 +1,5 @@
+const Query = Matter.Query;
+
 const INITIAL_LOCUS = [3, 1, 0];
 // const FALLING_LOCUS = [485, 480, 0];
 const FLIPPING_OFFSET = 20;// Sonic is left-aligned, not centered, in his sprite.
@@ -321,7 +323,9 @@ class Sonic {
 	}
 
 	isOnGround() {
-		return Math.abs(this.body.velocity.y) < 0.3;
+		const verticalCollisions = Query.collides(this.body, platforms)
+			.filter(collision => Math.abs(collision.tangent.x) > 0.1);
+		return verticalCollisions.length > 0;
 	}
 
 	isRunning() {

@@ -1,4 +1,4 @@
-var Engine = Matter.Engine,
+const Engine = Matter.Engine,
     Render = Matter.Render,
     Common = Matter.Common,
     Composite = Matter.Composite,
@@ -19,9 +19,6 @@ const engine = Engine.create();
 const runner = Runner.create();
 
 // Create all physical bodies.
-// Falling boxes.
-const boxA = Bodies.rectangle(200, 200, 80, 80);
-const boxB = Bodies.rectangle(250, 50, 80, 80);
 
 // Platforms.
 const platforms = [
@@ -35,23 +32,19 @@ const platforms = [
 	// Bodies.rectangle(950, 400, 200, 50, { isStatic: true }),
 	Bodies.rectangle(200, 600, 750, 50, { isStatic: true }),
 	ramp(950, 450, 500),
-	Bodies.rectangle(1250, 100, 300, 50, { isStatic: true }),
-	ramp(1400, 200, 300)
+	Bodies.rectangle(1225, 100, 300, 50, { isStatic: true }),
+	ramp(1750, -50, 500)
 ];
 
 // Sonic's box.
 const sonic = new Sonic();
 
-// add all of the bodies to the world
-const bodies = [boxA, boxB, sonic.body, ...platforms];
-
-
+// Add all of the bodies to the world
+const bodies = [sonic.body, ...platforms];
 World.add(engine.world, bodies);
-// Composite.add(engine.world, [ramp()]);
 
 const cave = new Image(1000, 1000);
 cave.src = 'images/back_cave_0.png';
-
 
 (function render() {
     window.requestAnimationFrame(render);
@@ -94,16 +87,6 @@ Events.on(engine, 'collisionActive', function ({name, pairs, source}) {
 		}
 	}
 });
-
-// class Platform {
-// 	constructor(x, y, width, height) {
-// 		this.x = x;
-// 		this.y = y;
-// 		this.width = width;
-// 		this.height = height;
-// 		this.fillStyle = '#777';
-// 	}
-// }
 
 function ramp(x, y, radius) {
 
