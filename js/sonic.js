@@ -86,6 +86,7 @@ class Sonic {
 		this.walkFrame = null;
 		this.crouchFrame = null;
 		this.rollFrame = null;
+		this.holdingKey = null;// Queued interaction while Sonic is busy jumping.
 
 		this.locus = INITIAL_LOCUS;
 		this.body = Bodies.rectangle(400, 200, SPRITE_SCALE * SPRITE_WIDTH, SPRITE_SCALE * SPRITE_HEIGHT);
@@ -138,13 +139,8 @@ class Sonic {
 	}
 
 	moveRight() {
-		this.animateRight();
-	}
-
-	animateRight() {
-		clearTimeout(this.rollFrame);
-		clearTimeout(this.walkFrame);
-		this.walkFrame = null;
+		this.stopRollingAnimation();
+		this.stopRunningAnimation();
 		let frame = 1;
 		this.isFacingRight = true;
 
@@ -162,13 +158,8 @@ class Sonic {
 	}
 
 	moveLeft() {
-		this.animateLeft();
-	}
-
-	animateLeft() {
-		clearTimeout(this.rollFrame);
-		clearTimeout(this.walkFrame);
-		this.walkFrame = null;
+		this.stopRollingAnimation();
+		this.stopRunningAnimation();
 		let frame = 1;
 		this.isFacingRight = false;
 
@@ -187,19 +178,14 @@ class Sonic {
 
 	endWalking() {
 		Body.setVelocity(this.body, {x: 0, y: this.body.velocity.y});
-		
-		clearTimeout(this.walkFrame);
-		this.walkFrame = null;
+
+		this.stopRunningAnimation();
 		this.locus = INITIAL_LOCUS;
 		this.draw();
 	}
 
 	crouch() {
-		this.animateCrouch();
-	}
-
-	animateCrouch() {
-		clearTimeout(this.rollFrame);
+		this.stopRollingAnimation();
 		this.chargeFactor = 0;
 
 		let frame = 0;
@@ -273,8 +259,7 @@ class Sonic {
 	}
 
 	endRoll() {
-		clearTimeout(this.rollFrame);
-		this.rollFrame = null;
+		this.stopRollingAnimation();
 
 		this.locus = INITIAL_LOCUS;
 		this.draw();
@@ -287,9 +272,8 @@ class Sonic {
 	jump() {
 		const vx = this.body.velocity.x;
 		Body.setVelocity(this.body, {x: vx, y: -JUMP_SPEED});
-		clearTimeout(this.walkFrame);
-		this.walkFrame = null;
-		clearTimeout(this.rollFrame);
+		this.stopRollingAnimation();
+		this.stopRunningAnimation();
 		let jumpingLocusIndex = 0;
 
 		const _moveUp = () => {
@@ -318,12 +302,18 @@ class Sonic {
 				this.locus = INITIAL_LOCUS;
 				this.draw();
 
-				// If the user is in horizontal motion while landing, begin running animation.
-				if (this.isRunningRight()) {
-					this.animateRight();
-				} else if (this.isRunningLeft()) {
-					this.animateLeft();
+				switch(this.holdingKey) {
+					case 37:// Left
+						this.moveLeft();
+						break;
+					case 39:// Right
+						this.moveRight();
+						break;
+					case 40:// Down
+						sonic.crouch();
+						break;
 				}
+				this.holdingKey = null;
 			}
 		};
 
@@ -362,5 +352,15 @@ class Sonic {
 
 	isCrouched() {
 		return this._isCrouched;
+	}
+
+	stopRunningAnimation() {
+		clearTimeout(this.walkFrame);
+		this.walkFrame = null;
+	}
+
+	stopRollingAnimation() {
+		clearTimeout(this.rollFrame);
+		this.rollFrame = null;
 	}
 }

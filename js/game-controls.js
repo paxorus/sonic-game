@@ -7,6 +7,10 @@ document.addEventListener('keydown', (ev) => {
 		autoStartedOnce = true;
 	}
 
+	if ([37, 39, 40].includes(ev.keyCode)) {
+		sonic.holdingKey = ev.keyCode;
+	}
+
 	switch (ev.keyCode) {
 		case 13:// Enter
 			sonic.switchCharacter();
@@ -47,6 +51,10 @@ document.addEventListener('keydown', (ev) => {
 });
 
 document.addEventListener('keyup', (ev) => {
+	if (sonic.holdingKey === ev.keyCode) {
+		sonic.holdingKey = null;
+	}
+
 	switch (ev.keyCode) {
 		case 37:// Left
 			if (sonic.isRunningLeft()) {
