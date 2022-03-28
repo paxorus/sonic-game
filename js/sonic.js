@@ -7,12 +7,6 @@ const SPRITE_WIDTH = 40;
 const SPRITE_HEIGHT = 40;
 const SPRITE_SCALE = 2;
 
-const WALK_SPEED = 10;
-const JUMP_SPEED = 10;
-
-const BASE_ROLL_SPEED = 1;
-const MAX_CHARGE_FACTOR = 1.5;
-
 const JUMPING_ANIMATION_INTERVAL = 25;// milliseconds
 const JUMPING_LOCI = [
 	[3, 211, 0],
@@ -57,7 +51,11 @@ const CHARACTERS = [
 		reverseSprite: 'images/flipped/tikal-flipped.png',
 		spriteSheetWidth: 372,
 		scale: 2.1,// Do we still need this?
-		numJumpFrames: 6
+		numJumpFrames: 6,
+		walkSpeed: 10,
+		jumpSpeed: 15,
+		baseRollSpeed: 1,
+		maxChargeFactor: 1.5
 	},
 	{
 		// Shadow
@@ -65,7 +63,11 @@ const CHARACTERS = [
 		reverseSprite: 'images/flipped/shadow-flipped.png',
 		spriteSheetWidth: 379,
 		scale: 2,
-		numJumpFrames: 5
+		numJumpFrames: 5,
+		walkSpeed: 15,
+		jumpSpeed: 10,
+		baseRollSpeed: 1,
+		maxChargeFactor: 1.5
 	},
 	{
 		// Sonic
@@ -73,7 +75,11 @@ const CHARACTERS = [
 		reverseSprite: 'images/flipped/sonic-flipped.png',
 		spriteSheetWidth: 363,
 		scale: 2,
-		numJumpFrames: 5
+		numJumpFrames: 5,
+		walkSpeed: 10,
+		jumpSpeed: 10,
+		baseRollSpeed: 1.5,
+		maxChargeFactor: 2
 	}
 ]
 
@@ -108,6 +114,7 @@ class Sonic {
 		this.spriteSheetWidth = character.spriteSheetWidth;
 		this.scale = character.scale;
 		this.numJumpFrames = character.numJumpFrames;
+		this.character = character;
 
 		this.draw();
 	}
@@ -145,7 +152,7 @@ class Sonic {
 		this.isFacingRight = true;
 
 		const _moveRight = () => {
-			Body.setVelocity(this.body, {x: WALK_SPEED, y: this.body.velocity.y});
+			Body.setVelocity(this.body, {x: this.character.walkSpeed, y: this.body.velocity.y});
 			this.locus = RUNNING_LOCI[frame];
 			this.draw();
 			frame = (frame + 1) % RUNNING_LOCI.length;
@@ -164,7 +171,7 @@ class Sonic {
 		this.isFacingRight = false;
 
 		const _moveLeft = () => {
-			Body.setVelocity(this.body, {x: -WALK_SPEED, y: this.body.velocity.y});
+			Body.setVelocity(this.body, {x: -this.character.walkSpeed, y: this.body.velocity.y});
 			this.locus = RUNNING_LOCI[frame];
 			this.draw();
 			frame = (frame + 1) % RUNNING_LOCI.length;
@@ -221,7 +228,7 @@ class Sonic {
 	chargeUp() {
 		if (this.chargeFactor === 0) {
 			this.chargeFactor = 1;
-		} else if (this.chargeFactor < MAX_CHARGE_FACTOR) {
+		} else if (this.chargeFactor < this.character.maxChargeFactor) {
 			this.chargeFactor += 0.25;
 		}
 
@@ -251,7 +258,7 @@ class Sonic {
 
 	roll() {
 		this._isCrouched = false;
-		const vx = BASE_ROLL_SPEED * this.chargeFactor * (this.isFacingRight ? 1 : -1);
+		const vx = this.character.baseRollSpeed * this.chargeFactor * (this.isFacingRight ? 1 : -1);
 		Body.applyForce(this.body, this.body.position, {x: vx, y: 0});
 
 		// Set velocity to avoid immediately ending the roll animation loop before the force kicks in.
@@ -271,7 +278,7 @@ class Sonic {
 
 	jump() {
 		const vx = this.body.velocity.x;
-		Body.setVelocity(this.body, {x: vx, y: -JUMP_SPEED});
+		Body.setVelocity(this.body, {x: vx, y: -this.character.jumpSpeed});
 		this.stopRollingAnimation();
 		this.stopRunningAnimation();
 		let jumpingLocusIndex = 0;
